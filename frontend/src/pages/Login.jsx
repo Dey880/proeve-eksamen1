@@ -12,11 +12,12 @@ export default function Login() {
     const { user } = useContext(AuthContext);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const redirected = queryParams.get("redirected") === "true";
+    const redirected = queryParams.get("redirect") === "true";
 
     useEffect(() => {
         if (redirected) {
-            setMsg("You have to log in to view this site.");
+            console.log("Redirected to login page.");
+            setMsg("You have to log in to view this page.");
             setMsgType("info");
         }
     }, [redirected]);
