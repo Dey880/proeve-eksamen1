@@ -9,8 +9,7 @@ const authController = {
     login: async (req, res) => {
         const { email, password } = req.body;
         try {
-            const user = await User.findOne({ email:
-                email });
+            const user = await User.findOne({ email: email.toLowerCase() });
             if (!user) {
                 return res.status(404).send({ msg: 'User not found' });
             }
@@ -18,7 +17,7 @@ const authController = {
             let hashedPassword = user.password;
             const isPassword = await bcrypt.compare(password, hashedPassword);
             if (isPassword) {
-                const jwtToken = createJwt(email, role);
+                const jwtToken = createJwt(email, role, user.username);
                 createCookie(res, jwtToken);
                 res.status(202).send({ msg: 'User found!', user });
             } else {
@@ -31,31 +30,45 @@ const authController = {
     register: async (req, res) => {
         const { userName, email, password, repeatPassword } = req.body;
         try {
-            const existingUser = await User.findOne({ email });
+            const existingUser = await User.findOne({ email: email.toLowerCase() });
             if (existingUser) {
-                return res.status(400).send({ message: 'Email allready used, please go to login or use a different email' });
+                return res.status(400).send({ msg: `Email already used, please go to login or use a different email` });
             }
             const role = 'user';
             if (password === repeatPassword) {
                 bcrypt.hash(password, saltRounds, async function(err, hash) {
-                    if (err) console.error(err, 'error');
-                    const user = new User({
-                        username: userName,
-                        role: role,
-                        email: email,
-                        password: hash
-                    });
-                    user.save();
-                    const jwtToken = createJwt(email, role);
-                    await createCookie(res, jwtToken);
-                    res.status(201).send({ message: 'Registered successfully', user });
+                    if (err) {
+                        console.error(err, 'error');
+                        return res.status(500).send({ msg: 'Error hashing password' });
+                    }
+                    try {
+                        const user = new User({
+                            username: userName,
+                            role: role,
+                            email: email.toLowerCase(),
+                            password: hash
+                        });
+                        await user.save();
+                        const jwtToken = createJwt(email, role, userName);
+                        await createCookie(res, jwtToken);
+                        res.status(201).send({ msg: 'Registered successfully', user });
+                    } catch (saveError) {
+                        if (saveError.name === 'ValidationError') {
+                            const errors = Object.values(saveError.errors).map(err => err.message);
+                            return res.status(400).send({ 
+                                msg: 'Please check your signup again', 
+                                errors: errors 
+                            });
+                        }
+                        throw saveError;
+                    }
                 });
             } else {
-                res.status(400).send({ message: 'Please check your signup' });
+                res.status(400).send({ msg: 'Passwords do not match' });
             }
         } catch (error) {
             console.error(error);
-            res.status(500).send({ msg: 'Internal server error', error });
+            res.status(500).send({ msg: 'Internal server error', error: error.message });
         }
     },
     logout: (req, res) => {
@@ -82,13 +95,13 @@ const authController = {
     },
     user: async (req, res) => {
         try {
-            const email = req.user.email;
+            const email = req.user.email.toLowerCase();
             const user = await User.findOne({ email });
 
             if (!user) {
                 return res.status(404).send({ msg: 'User not found' });
             } else {
-                res.status(200).send({ msg: 'User found', user: user });
+                res.status(200).send({ msg: 'User found', user });
             }
         } catch (error) {
             console.error(error);

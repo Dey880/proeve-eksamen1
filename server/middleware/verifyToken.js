@@ -11,7 +11,7 @@ async function verifyJwt(req, res, next) {
                 return res.status(401).send({ msg: "User not authenticated" });
             }
             try {
-                let email = decoded.email;
+                let email = decoded.email.toLowerCase();
                 req.user = decoded;
                 const user = await User.findOne({ email });
                 if (!user) {
