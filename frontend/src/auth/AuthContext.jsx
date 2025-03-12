@@ -21,18 +21,14 @@ const AuthProvider = ({ children }) => {
                 setUser(null);
             } finally {
                 setLoading(false);
-                if (!user) {
-                    return null;
-                }
-                return;
             }
         };
 
         fetchUser();
-    }, [user]);
+    }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user, loading, setUser }}>
             {children}
         </AuthContext.Provider>
     );

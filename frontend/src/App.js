@@ -7,6 +7,9 @@ import Register from './pages/Register';
 import LandingPage from './pages/LandingPage';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
+import ProductDetail from "./pages/ProductDetail";
+import CategoryPage from "./pages/CategoryPage";
+import EditProduct from "./pages/EditProduct";
 
 function App() {
     return (
@@ -16,10 +19,11 @@ function App() {
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Register />}></Route>
                 <Route path="/profile" element={<Profile />}></Route>
-
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/category/:id" element={<CategoryPage />} />
+                <Route path="/product/edit/:id" element={<EditProduct />} />
                 <Route path="/*" element={<NotFound />}></Route>
             </Routes>
-
         </div>
     );
 }

@@ -1,7 +1,29 @@
 .landing-page {
+    /* Remove width: 100%; as it's unnecessary */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: calc(100vh - 74px);
+    justify-content: flex-start; /* Change from center to flex-start */
+    min-height: calc(100vh - 74px);
+    padding: 20px;
+}
+
+.landing-page h1 {
+    text-align: center;
+    margin: 20px 0 40px 0;
+    font-size: 2.5rem;
+    color: var(--color-black);
+}
+
+/* Add this to ensure Store component takes full width */
+.landing-page > div {
+    width: 100%;
+    max-width: 1200px;
+}
+
+@media (max-width: 768px) {
+    .landing-page h1 {
+        font-size: 2rem;
+        margin: 15px 0 30px 0;
+    }
 }
